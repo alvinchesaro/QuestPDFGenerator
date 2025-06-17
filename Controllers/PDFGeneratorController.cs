@@ -1,4 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using QuestPDF.Drawing;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -26,14 +27,20 @@ namespace QuestPDFGenerator.Controllers
 
         private static IDocument CreateDocument()
         {
+            var fontDir = Path.Combine(AppContext.BaseDirectory, "Resources", "Fonts");
+            foreach (var fontPath in Directory.GetFiles(fontDir, "*.ttf"))
+            {
+                using var stream = System.IO.File.OpenRead(fontPath);
+                FontManager.RegisterFont(stream);
+            }
             var logoPath = Path.Combine(AppContext.BaseDirectory, "Resources", "logo.png");
             var partnersPath = Path.Combine(AppContext.BaseDirectory, "Resources", "partners.png");
             var model = new BadgeDocumentViewModel
             {
                 Name = "Jane Doe",
                 Organization = "Kenya Sugar Board",
-                AttendanceCode = "SIISTUSONGE25-XYZ1",
-                Role = "Attendee",
+                AttendanceCode = "#TUSONGE25-XYZ1",
+                Role = "Judge",
                 LogoPath = logoPath,
                 AttendanceUrl = "https://sugarinnovation.go.ke/attendance?code=SIISTUSONGE25-XYZ1",
                 ConceptNoteUrl = "https://sugarinnovation.go.ke/resources/Call-for-Papers-2024.pdf",
@@ -97,15 +104,15 @@ namespace QuestPDFGenerator.Controllers
                     col.Item().AlignCenter().ScaleToFit().Image(model.LogoPath);
                 }
 
-                col.Item().Text(model.Name).AlignCenter().ExtraBlack().FontSize(18).FontColor("#333");
-                col.Item().PaddingBottom(15).Text(model.Organization).FontSize(16).AlignCenter().Italic();
-                col.Item().PaddingBottom(10).Text($"Attendance Code: {model.AttendanceCode}").FontSize(10).SemiBold().AlignCenter();
+                col.Item().Text(model.Name).AlignCenter().ExtraBlack().FontSize(18).FontColor("#333").FontFamily("Poppins");
+                col.Item().PaddingBottom(5).Text(model.Organization).FontSize(16).AlignCenter().Italic().FontFamily("Poppins");
+                col.Item().PaddingBottom(5).Text($"Attendance Code: {model.AttendanceCode}").FontSize(12).SemiBold().AlignCenter().FontFamily("Poppins");
 
                 var qrCode = QRHelper.GenerateQRCode(model.AttendanceUrl);
                 col.Item().AlignCenter().Width(200).Image(qrCode);
 
-                col.Item().Padding(8).Border(1).BorderColor("#28A745").Background("#28A745").AlignCenter()
-                    .Text(model.Role).Bold().FontColor("#FFFFFF").FontSize(26);
+                col.Item().Padding(5).Border(1).BorderColor("#3B9E55").Background("#3B9E55").AlignCenter()
+                    .Text(model.Role).Bold().FontColor("#FFFFFF").FontSize(26).FontFamily("Poppins");
             });
         }
 
@@ -114,13 +121,13 @@ namespace QuestPDFGenerator.Controllers
         {
             container.Padding(10).Border(0).Column(col =>
             {
-                col.Item().PaddingTop(40).Text("Scan to Download the Concept Note").AlignCenter().FontSize(15).ExtraBlack();
+                col.Item().PaddingTop(30).Text("Scan to Download the Concept Note").AlignCenter().FontSize(15).Black().FontFamily("Poppins");
 
                 var qrCode = QRHelper.GenerateQRCode(model.ConceptNoteUrl);
-                col.Item().PaddingTop(60).AlignCenter().Width(200).Image(qrCode);
+                col.Item().PaddingTop(40).AlignCenter().Width(200).Image(qrCode);
 
-                col.Item().PaddingTop(12).Text("See you at the Grand Royal Swiss Hotel - Kisumu").AlignEnd().FontSize(12);
-                col.Item().PaddingTop(4).Text("2nd - 4th December 2025").AlignEnd().FontSize(12).ExtraBold();
+                col.Item().PaddingTop(8).Text("See you @ the Grand Royal Swiss Hotel - Kisumu").AlignEnd().FontSize(10).FontFamily("Poppins");
+                col.Item().PaddingTop(2).Text("2nd - 4th December 2025").AlignEnd().FontSize(12).SemiBold().FontFamily("Poppins");
             });
         }
 
@@ -139,18 +146,18 @@ namespace QuestPDFGenerator.Controllers
         {
             container.Padding(10).Border(0).Column(col =>
             {
-                col.Item().PaddingTop(30).Text("Scan for the Exhibitor Handbook").AlignCenter().FontSize(14).ExtraBlack();
+                col.Item().PaddingTop(30).Text("Scan for the Exhibitor Handbook").AlignCenter().FontSize(12).Black().FontFamily("Poppins");
 
                 var handbookQr = QRHelper.GenerateQRCode(model.ExhibitorHandbookUrl);
                 col.Item().AlignCenter().Width(130).Image(handbookQr);
 
-                col.Item().PaddingTop(8);
-                col.Item().Text("Scan for the Floor Plan").FontSize(14).AlignCenter().ExtraBlack();
+                col.Item().PaddingTop(5);
+                col.Item().Text("Scan for the Floor Plan").FontSize(12).AlignCenter().Black().FontFamily("Poppins");
 
                 var floorPlanQr = QRHelper.GenerateQRCode(model.FloorPlanUrl);
                 col.Item().AlignCenter().Width(130).Image(floorPlanQr);
-                col.Item().PaddingTop(8).Text("Talk to/WhatsApp Us: +254 703 802247").FontSize(14).AlignLeft().Bold();
-                col.Item().PaddingTop(8).Text("Email us: info@sugarinnovation.go.ke").FontSize(14).AlignLeft().Bold();
+                col.Item().PaddingTop(5).PaddingLeft(40).Text("📞 :   +254 703 802247").FontSize(11).AlignLeft().SemiBold().FontColor("#3B9E55").FontFamily("Poppins");
+                col.Item().PaddingTop(5).PaddingLeft(40).Text("📧 :   info@sugarinnovation.go.ke").FontSize(11).AlignLeft().SemiBold().FontColor("#3B9E55").FontFamily("Poppins");
             });
         }
     }

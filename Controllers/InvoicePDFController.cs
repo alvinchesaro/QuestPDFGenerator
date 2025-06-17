@@ -29,32 +29,12 @@ namespace QuestPDFGenerator.Controllers
         private static IDocument CreateDocument()
         {
             var fontDir = Path.Combine(AppContext.BaseDirectory, "Resources", "Fonts");
-
-            // Register Regular
-            using (var regular = System.IO.File.OpenRead(Path.Combine(fontDir, "Poppins-Regular.ttf")))
+            foreach (var fontPath in Directory.GetFiles(fontDir, "*.ttf"))
             {
-                FontManager.RegisterFont(regular);
+                using var stream = System.IO.File.OpenRead(fontPath);
+                FontManager.RegisterFont(stream);
             }
 
-            using (var bold = System.IO.File.OpenRead(Path.Combine(fontDir, "Poppins-Bold.ttf")))
-            {
-                FontManager.RegisterFont(bold);
-            }
-
-            using (var extraBold = System.IO.File.OpenRead(Path.Combine(fontDir, "Poppins-ExtraBold.ttf")))
-            {
-                FontManager.RegisterFont(extraBold);
-            }
-
-            using (var black = System.IO.File.OpenRead(Path.Combine(fontDir, "Poppins-Black.ttf")))
-            {
-                FontManager.RegisterFont(black);
-            }
-
-            using (var semiBold = System.IO.File.OpenRead(Path.Combine(fontDir, "Poppins-SemiBold.ttf")))
-            {
-                FontManager.RegisterFont(semiBold);
-            }
 
             var headerPath = Path.Combine(AppContext.BaseDirectory, "Resources", "invoice_header.png");
             var contactPath = Path.Combine(AppContext.BaseDirectory, "Resources", "invoice_contact.png");
